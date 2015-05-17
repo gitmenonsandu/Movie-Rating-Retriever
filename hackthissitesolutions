@@ -1,0 +1,27 @@
+hackthissite.org solutions
+
+basic 1:
+	The password was hidden in the source code of the page. ctrl+f and search passsword.. and the password is near one of the results
+
+basic 2:
+	It is really common sense as they mentioned. Since the password file was not uploaded, there is no password. Hit submit with a blank field.
+
+basic 3:
+	On inspecting element near the field, one can conclude that the password has something to do with /password.php.
+	So on appending that to the URL, a new page with the password is obtained
+
+basic 4:
+	On inspecting element on the submit button, one can say that the password generated is sent to an email address.
+	So on replacing that email id with one of ours, we receive the password on clicking the submit button/
+
+basic 5:
+	Same as that of basic 4
+
+basic 6:
+	The encrytion is done as follows
+	the first character is not changed, the second is incremented by one ASCII value, the third by 2 ASCII values and so on.
+	So on reversing the encrypted password given , we get the password.
+
+basic 7:
+	Since the unix command's are executed in the given field, i guess giving an 'ls' command should give the password containing file or the password itself. 
+	But its giving a blank page,  I haven't figured that out yet.
