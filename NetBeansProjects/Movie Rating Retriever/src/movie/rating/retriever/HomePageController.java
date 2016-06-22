@@ -5,9 +5,9 @@
  */
 package movie.rating.retriever;
 
-import java.awt.event.MouseEvent;
+
 import java.io.File;
-import java.io.FileFilter;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -15,7 +15,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -24,12 +23,9 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.paint.Paint;
-import javafx.scene.shape.Shape;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
-import javafx.stage.Window;
 import javafx.util.Callback;
+
 /**
  * FXML Controller class
  *
@@ -53,26 +49,29 @@ public class HomePageController implements Initializable {
     private TextField searchBar;
     
     @FXML
-    protected void browseFolders(){
+    protected void browseFolders() throws IOException{
         DirectoryChooser fc=new DirectoryChooser();
-        Window ownerWindow = null;
-        File selectedDirectory=fc.showDialog(ownerWindow);
+        File selectedDirectory=fc.showDialog(null);
         if(selectedDirectory!=null){
             directory.setText(selectedDirectory.getPath());
-        }
         
-        File[] allFiles=selectedDirectory.listFiles();
-        movieNames=new ArrayList<>();
-        movieSize=new ArrayList<>();
-        getAllMovieNames(allFiles,movieNames,movieSize);
-        for(int i=0;i<movieNames.size();++i){
-            ObservableList row=FXCollections.observableArrayList();
-            Integer slNo=i+1;
-            row.addAll(slNo.toString(),movieNames.get(i),movieSize.get(i).toString(),"-","");
-            movieData.add(row);
-        }
-        table.setItems(movieData);
         
+            File[] allFiles=selectedDirectory.listFiles();
+            movieNames=new ArrayList<>();
+            movieSize=new ArrayList<>();
+            movieDirectory=new ArrayList<>();
+            
+            getAllMovieNames(allFiles,movieNames,movieSize,movieDirectory);
+            for(int i=0;i<movieNames.size();++i){
+                ObservableList row=FXCollections.observableArrayList();
+                Integer slNo=i+1;
+                
+                row.addAll(slNo.toString(),movieNames.get(i),movieSize.get(i).toString(),"-","",movieDirectory.get(i));
+                
+                movieData.add(row);
+            }
+            table.setItems(movieData);
+        }
     }
     @FXML
     protected void handleGetRating(){
@@ -96,6 +95,7 @@ public class HomePageController implements Initializable {
     }
     ArrayList<String> movieNames;
     ArrayList<Double> movieSize;
+    ArrayList<String> movieDirectory;
     ObservableList<ObservableList> movieData;
     /**
      * Initializes the controller class.
@@ -105,12 +105,15 @@ public class HomePageController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
+        String surl="http://www.omdbapi.com/?t=black+swan&y=&plot=short&r=json";
         movieData=FXCollections.observableArrayList();
         movieNames=new ArrayList<>();
         movieSize=new ArrayList<>();
+        movieDirectory=new ArrayList<>();
         String colName=null;
         
-        for(int i=0;i<5;++i){
+        
+        for(int i=0;i<6;++i){
             final int j=i;
             switch (i) {
                 case 0:
@@ -128,11 +131,15 @@ public class HomePageController implements Initializable {
                 case 4:
                     colName="Play";
                     break;
+                case 5:
+                    colName="Directory";
+                    break;
             }
             TableColumn col=new TableColumn(colName);
             if(i==1)
                 col.setMinWidth(370);
-            
+            else if(i==5)
+                col.setVisible(false);
             col.setEditable(true);
             col.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ObservableList,String>,ObservableValue<String>>(){                    
                 @Override
@@ -151,8 +158,13 @@ public class HomePageController implements Initializable {
                                    
                                    @Override
                                    public void handle(javafx.scene.input.MouseEvent event) {
-                                       
-                                      
+                                      if(event.getClickCount()==2){
+                                        String fileDir=cell.getTableView().getItems().get(cell.getIndex()).get(5).toString();
+                                        
+                                        System.out.println(fileDir);
+                                        
+                                        
+                                      }
                                     }
                                    
                                });
@@ -185,12 +197,12 @@ public class HomePageController implements Initializable {
         }
     }    
 
-    private void getAllMovieNames(File[] allFiles,ArrayList<String> movieNames,ArrayList<Double> movieSize) {
+    private void getAllMovieNames(File[] allFiles,ArrayList<String> movieNames,ArrayList<Double> movieSize,ArrayList<String> movieDirectory) {
         String movie=null;
         Double size=null;
         for(int i=0;i<allFiles.length;++i){
             if(allFiles[i].isDirectory())
-                getAllMovieNames(allFiles[i].listFiles(), movieNames,movieSize);
+                getAllMovieNames(allFiles[i].listFiles(), movieNames,movieSize,movieDirectory);
             else{
                 movie=allFiles[i].getName();
                 size=allFiles[i].length()/Math.pow(2, 20);
@@ -198,6 +210,7 @@ public class HomePageController implements Initializable {
                     if(!movie.toLowerCase().contains("sample") && !(size<100)){
                         movieNames.add(movie);
                         movieSize.add(size);
+                        movieDirectory.add(allFiles[i].getPath());
                     }
             }
         }
