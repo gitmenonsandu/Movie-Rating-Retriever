@@ -17,6 +17,6 @@
       <TableView fx:id="table" layoutX="14.0" layoutY="168.0" prefHeight="368.0" prefWidth="672.0" />
       <Label layoutX="20.0" layoutY="14.0" text="Choose the movie directory" />
       <Button fx:id="getRating" layoutX="14.0" layoutY="73.0" mnemonicParsing="false" onAction="#handleGetRating" text="Get Rating" />
-      <TextField fx:id="searchBar" layoutX="14.0" layoutY="134.0" prefHeight="25.0" prefWidth="549.0" promptText="Search" />
+      <TextField fx:id="searchBar" layoutX="14.0" layoutY="134.0" onKeyReleased="#handleSearch" prefHeight="25.0" prefWidth="549.0" promptText="Search" />
    </children>
 </AnchorPane>
