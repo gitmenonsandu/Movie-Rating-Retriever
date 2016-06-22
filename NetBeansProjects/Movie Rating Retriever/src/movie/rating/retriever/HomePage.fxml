@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="640.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="movie.rating.retriever.HomePageController">
+    <stylesheets>
+        <URL value="@homepage.css" />
+    </stylesheets>
+   <children>
+      <Button fx:id="browse" layoutX="568.0" layoutY="45.0" mnemonicParsing="false" onAction="#browseFolders" text="Browse" />
+      <TextField fx:id="directory" layoutX="14.0" layoutY="43.0" prefHeight="25.0" prefWidth="549.0" />
+      <TableView fx:id="table" layoutX="14.0" layoutY="100.0" prefHeight="368.0" prefWidth="608.0" />
+      <Label layoutX="20.0" layoutY="14.0" text="Choose the movie directory" />
+   </children>
+</AnchorPane>
