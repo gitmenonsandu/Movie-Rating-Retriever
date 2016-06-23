@@ -22,10 +22,13 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -59,6 +62,12 @@ public class HomePageController implements Initializable {
     private TextField searchBar;
     
     @FXML
+    private ProgressBar ratingProgress;
+    
+    @FXML
+    private Button cancel;
+    
+    @FXML
     protected void browseFolders() throws IOException{
         DirectoryChooser fc=new DirectoryChooser();
         File selectedDirectory=fc.showDialog(null);
@@ -84,12 +93,87 @@ public class HomePageController implements Initializable {
             table.setItems(movieData);
         }
     }
-    
+    Thread t;
+
+    /**
+     *
+     * @param event
+     */
+    @FXML
+    protected synchronized void handleGetRating(ActionEvent event){
+
+            
+        boolean firstClick=true;
+        
+        if(event.getSource()==getRating){
+            searchBar.clear();
+            if(!table.getItems().isEmpty())
+            {
+                ratingProgress.setVisible(true);
+                cancel.setVisible(true);
+                cancel.setText("| |");
+                searchBar.setDisable(true);
+                t.start();
+                System.out.println(t.getThreadGroup());
+            }
+        }
+        else if(event.getSource()==cancel){
+            try{
+                cancel.setText("|>");
+                t.wait();
+                System.out.println(t.getThreadGroup());
+                searchBar.setDisable(false);
+            }
+            catch(Exception e){
+                System.out.println(e);
+            }
+        }
+    }
     
     @FXML
-    protected void handleGetRating(){
-                    
-            Thread t=new Thread(new Runnable() {
+    protected void handleSearch(){
+        String searchString=searchBar.getText();
+        if(searchString==null)
+            table.setItems(movieData);
+        else{
+            ObservableList<ObservableList> searchData=FXCollections.observableArrayList();
+            for(ObservableList row : movieData){
+                if(row.get(1).toString().toLowerCase().contains(searchString.toLowerCase()))
+                    searchData.add(row);
+            }
+            table.setItems(searchData);
+            
+        }
+    }
+    
+    ArrayList<String> movieNames;
+    ArrayList<String> movieRating;
+    ArrayList<Double> movieSize;
+    ArrayList<String> movieDirectory;
+    ObservableList<ObservableList> movieData;
+    JSONObject obj;
+    String omdbUrl="http://www.omdbapi.com/?t=&y=&plot=short&r=json";
+
+    /**
+     * Initializes the controller class.
+     * @param url
+     * @param rb
+     */
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        // TODO
+
+        
+        ratingProgress.setVisible(false);
+        cancel.setVisible(false);
+        movieData=FXCollections.observableArrayList();
+        movieNames=new ArrayList<>();
+        movieRating=new ArrayList<>();
+        movieSize=new ArrayList<>();
+        movieDirectory=new ArrayList<>();
+        String colName=null;
+        
+        t=new Thread(new Runnable() {
                 @Override
                 public void run() {
                     ObservableList<ObservableList> movieDataWithRating=FXCollections.observableArrayList();
@@ -127,58 +211,16 @@ public class HomePageController implements Initializable {
                             Logger.getLogger(HomePageController.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         table.setItems(movieDataWithRating);
+                        ratingProgress.setProgress((movieData.indexOf(row)+1.0)/movieData.size());
                     }
+                    searchBar.setDisable(false);
+                    ratingProgress.setVisible(false);
+                    cancel.setVisible(false);
                     table.setItems(movieDataWithRating);
-                    
+                
                 }
                 
             });
-        t.start();
-    }
-    
-    @FXML
-    protected void handleSearch(){
-        String searchString=searchBar.getText();
-        if(searchString==null)
-            table.setItems(movieData);
-        else{
-            ObservableList<ObservableList> searchData=FXCollections.observableArrayList();
-            for(ObservableList row : movieData){
-                if(row.get(1).toString().toLowerCase().contains(searchString.toLowerCase()))
-                    searchData.add(row);
-            }
-            table.setItems(searchData);
-            
-        }
-    }
-    
-    ArrayList<String> movieNames;
-    ArrayList<String> movieRating;
-    ArrayList<Double> movieSize;
-    ArrayList<String> movieDirectory;
-    ObservableList<ObservableList> movieData;
-    JSONObject obj;
-    String omdbUrl="http://www.omdbapi.com/?t=&y=&plot=short&r=json";
-
-    /**
-     * Initializes the controller class.
-     * @param url
-     * @param rb
-     */
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-
-        
-            
-        movieData=FXCollections.observableArrayList();
-        movieNames=new ArrayList<>();
-        movieRating=new ArrayList<>();
-        movieSize=new ArrayList<>();
-        movieDirectory=new ArrayList<>();
-        String colName=null;
-        
-        
         for(int i=0;i<6;++i){
             final int j=i;
             switch (i) {

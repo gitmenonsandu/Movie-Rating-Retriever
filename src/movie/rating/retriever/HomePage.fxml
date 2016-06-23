@@ -7,7 +7,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="549.0" prefWidth="706.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="movie.rating.retriever.HomePageController">
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="549.0" prefWidth="706.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="movie.rating.retriever.HomePageController">
     <stylesheets>
         <URL value="@homepage.css" />
     </stylesheets>
@@ -18,5 +18,7 @@
       <Label layoutX="20.0" layoutY="14.0" text="Choose the movie directory" />
       <Button fx:id="getRating" layoutX="14.0" layoutY="73.0" mnemonicParsing="false" onAction="#handleGetRating" text="Get Rating" />
       <TextField fx:id="searchBar" layoutX="14.0" layoutY="134.0" onKeyReleased="#handleSearch" prefHeight="25.0" prefWidth="549.0" promptText="Search" />
+      <ProgressBar fx:id="ratingProgress" layoutX="112.0" layoutY="86.0" prefHeight="23.0" prefWidth="451.0" progress="0.0" />
+      <Button fx:id="cancel" layoutX="570.0" layoutY="85.0" mnemonicParsing="false" onAction="#handleGetRating" prefHeight="31.0" prefWidth="36.0" text="| |" />
    </children>
 </AnchorPane>
