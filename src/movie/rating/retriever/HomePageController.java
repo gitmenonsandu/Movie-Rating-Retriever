@@ -82,12 +82,58 @@ public class HomePageController implements Initializable {
                 movieData.add(row);
             }
             table.setItems(movieData);
-            t.start();
         }
     }
+    
+    
     @FXML
     protected void handleGetRating(){
-        
+                    
+            Thread t=new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    ObservableList<ObservableList> movieDataWithRating=FXCollections.observableArrayList();
+                    movieDataWithRating=movieData;
+                    String movie,ratingUrl;
+                    for(ObservableList row : movieData){
+                        ObservableList newRow=row;
+                        movie=row.get(1).toString().toLowerCase();
+                        Integer start=0,end=0;
+                        movie=movie.substring(0, movie.length()-3);
+                        movie=movie.replace(' ','.');
+                        
+                        for(int i=0;i<movie.length();++i){
+                            end++;
+                            if(movie.charAt(i)=='-')
+                                break;
+                            if(i+4<movie.length())
+                                if(isDigit(i+1,movie) && isDigit(i+2,movie) && isDigit(i+3,movie) && isDigit(i+4,movie))
+                                    break;
+                            
+                        }
+                        movie=movie.substring(start, end-1);
+                        
+                        ratingUrl=omdbUrl;
+                        ratingUrl=ratingUrl.replace("?t=", "?t="+movie);
+                        
+                        
+                        try {
+                            obj = j.makeHttpRequest(ratingUrl, "GET", null);
+                            newRow.set(3, obj.get("imdbRating"));
+                            movieDataWithRating.set(movieData.indexOf(row), newRow);
+                        } catch (Exception ex) {
+                            System.out.println(ratingUrl);
+                            movieDataWithRating.set(movieData.indexOf(row), row);
+                            Logger.getLogger(HomePageController.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        table.setItems(movieDataWithRating);
+                    }
+                    table.setItems(movieDataWithRating);
+                    
+                }
+                
+            });
+        t.start();
     }
     
     @FXML
@@ -229,50 +275,7 @@ public class HomePageController implements Initializable {
     }
     JSONResponse j=new JSONResponse();
             List<NameValuePair>list=new ArrayList<>();
-            Thread t=new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    ObservableList<ObservableList> movieDataWithRating=FXCollections.observableArrayList();
-                    movieDataWithRating=movieData;
-                    String movie,ratingUrl;
-                    for(ObservableList row : movieData){
-                        ObservableList newRow=row;
-                        movie=row.get(1).toString().toLowerCase();
-                        Integer start=0,end=0;
-                        movie=movie.substring(0, movie.length()-3);
-                        movie=movie.replace(' ','.');
-                        
-                        for(int i=0;i<movie.length();++i){
-                            end++;
-                            if(movie.charAt(i)=='-')
-                                break;
-                            if(i+4<movie.length())
-                                if(isDigit(i+1,movie) && isDigit(i+2,movie) && isDigit(i+3,movie) && isDigit(i+4,movie))
-                                    break;
-                            
-                        }
-                        movie=movie.substring(start, end-1);
-                        
-                        ratingUrl=omdbUrl;
-                        ratingUrl=ratingUrl.replace("?t=", "?t="+movie);
-                        
-                        
-                        try {
-                            obj = j.makeHttpRequest(ratingUrl, "GET", null);
-                            newRow.set(3, obj.get("imdbRating"));
-                            movieDataWithRating.set(movieData.indexOf(row), newRow);
-                        } catch (Exception ex) {
-                            System.out.println(ratingUrl);
-                            movieDataWithRating.set(movieData.indexOf(row), row);
-                            Logger.getLogger(HomePageController.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        table.setItems(movieDataWithRating);
-                    }
-                    table.setItems(movieDataWithRating);
-                    
-                }
-                
-            });
+
     private void getAllMovieNames(File[] allFiles,ArrayList<String> movieNames,ArrayList<Double> movieSize,ArrayList<String> movieDirectory) {
         String movie=null;
         Double size=null;
